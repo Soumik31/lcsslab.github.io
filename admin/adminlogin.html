@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Login - LCSS</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+</head>
+<body>
+    <div style="width: 960px; margin:20px auto;">
+
+        <!-- Links -->
+        <nav class="navbar navbar-expand-sm bg-warning navbar-dark">
+            <ul class="navbar-nav">
+                <li class="active nav-item">
+                    <a class="nav-link text-primary" href="../index.html">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-primary" href="adminlogin.html">Admin</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-primary" href="../contact.html">Contact</a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Admin Panel Heading -->
+        <div>
+            <h1 align="center">Admin Panel</h1>
+            <h4 align="center" id="errorMsg" style="color: red;"></h4>
+        </div>
+
+        <!-- Login Form -->
+        <div>
+            <form id="adminLoginForm" onsubmit="return handleAdminLogin(event)">
+                <div align="center">
+                    <label for="username">Username:</label>
+                    <input type="text" name="username" id="username"/><br><br>
+                </div>
+                <div align="center">
+                    <label for="password">Password:</label>
+                    <input type="password" name="password" id="password"/>
+                </div>
+                <div align="center" style="margin-top:20px;">
+                    <input type="submit" name="Login" value="Login">
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+    <script>
+        async function handleAdminLogin(event) {
+            event.preventDefault();
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
+            var errorMsg = document.getElementById('errorMsg');
+
+            // Validate empty fields
+            if (!username || username.trim() === '') {
+                errorMsg.textContent = 'Username cannot be empty';
+                return false;
+            }
+            if (!password || password.trim() === '') {
+                errorMsg.textContent = 'Password cannot be empty';
+                return false;
+            }
+
+            // Query admin table
+            var { data, error } = await supabase
+                .from('admin')
+                .select('*')
+                .eq('aduser', username)
+                .eq('password', password);
+
+            if (error) {
+                errorMsg.textContent = 'An error occurred. Please try again.';
+                return false;
+            }
+
+            if (data && data.length > 0) {
+                // Success - store admin username and redirect
+                sessionStorage.setItem('lcss_admin', username);
+                window.location.href = 'index.html';
+            } else {
+                // Failure
+                errorMsg.textContent = 'You have entered the wrong username or password. Please try again.';
+            }
+            return false;
+        }
+    </script>
+</body>
+</html>

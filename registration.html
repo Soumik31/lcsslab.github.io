@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LCSS E-Commerce - Registration</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.css" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div style="width: 960px; margin:20px auto;">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-sm bg-warning navbar-dark">
+        <ul class="navbar-nav">
+            <li class="active nav-item">
+                <a class="nav-link text-primary" href="index.html">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-primary" href="login.html">Login</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-primary" href="admin/adminlogin.html">Admin</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-primary" href="checkout.html">Checkout</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-primary" href="contact.html">Contact</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-primary" href="registration.html">Registration</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-primary" href="aboutus.html">About us</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<div style="width: 960px; margin:20px auto;">
+    <div>
+        <h1 align="center">Registration</h1>
+        <h4 align="center" id="message"></h4>
+    </div>
+
+    <!-- Registration Form -->
+    <div>
+        <form id="registrationForm" onsubmit="handleRegistration(event)">
+            <div style="float: left; margin-left:280px;">
+                <div>
+                    <label>Name</label><br>
+                    <input type="text" id="name" name="name" placeholder="Enter Desired Name" size="57px">
+                </div>
+                <br>
+                <div>
+                    <label>Email</label><br>
+                    <input type="email" id="email" name="email" placeholder="somebody@example.com" size="57px">
+                </div>
+                <br>
+                <div>
+                    <label>Username</label><br>
+                    <input type="text" id="username" name="username" placeholder="Enter Desired Username" size="57px">
+                </div>
+                <br>
+                <div>
+                    <label>Password</label><br>
+                    <input type="password" id="password" name="password" placeholder="Password" size="57px">
+                </div>
+                <br>
+                <div>
+                    <label>Confirm Password</label><br>
+                    <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-type Password" size="57px">
+                </div>
+                <br>
+                <div>
+                    <label>Gender</label><br>
+                    <input type="radio" value="male" name="gender" />Male
+                    <input type="radio" value="female" name="gender" />Female
+                    <input type="radio" value="other" name="gender" />Other
+                </div>
+                <br>
+                <div>
+                    <label>Date of Birth</label><br>
+                    <input type="date" id="dob" name="date" />
+                </div>
+
+                <div align="center" style="margin-top:30px;">
+                    <input type="submit" value="Register">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script>
+async function handleRegistration(e) {
+    e.preventDefault();
+    var msgEl = document.getElementById('message');
+    msgEl.textContent = '';
+    msgEl.className = '';
+
+    var name = document.getElementById('name').value.trim();
+    var email = document.getElementById('email').value.trim();
+    var username = document.getElementById('username').value.trim();
+    var password = document.getElementById('password').value.trim();
+    var confirmPassword = document.getElementById('confirm_password').value.trim();
+    var genderEl = document.querySelector('input[name="gender"]:checked');
+    var dob = document.getElementById('dob').value;
+
+    // Validation
+    if (!name) {
+        msgEl.textContent = 'Name cannot be empty';
+        msgEl.className = 'text-danger';
+        return;
+    }
+    if (!email) {
+        msgEl.textContent = 'Email cannot be empty';
+        msgEl.className = 'text-danger';
+        return;
+    }
+    if (!username) {
+        msgEl.textContent = 'Username cannot be empty';
+        msgEl.className = 'text-danger';
+        return;
+    }
+    if (!password) {
+        msgEl.textContent = 'Password cannot be empty';
+        msgEl.className = 'text-danger';
+        return;
+    }
+    if (password.length < 4) {
+        msgEl.textContent = 'Password must contain at least 4 characters';
+        msgEl.className = 'text-danger';
+        return;
+    }
+    if (confirmPassword !== password) {
+        msgEl.textContent = 'Passwords must match';
+        msgEl.className = 'text-danger';
+        return;
+    }
+    if (!genderEl) {
+        msgEl.textContent = 'At least one gender must be selected';
+        msgEl.className = 'text-danger';
+        return;
+    }
+    if (!dob) {
+        msgEl.textContent = 'Date must be selected';
+        msgEl.className = 'text-danger';
+        return;
+    }
+
+    var gender = genderEl.value;
+
+    var { data, error } = await supabase
+        .from('users')
+        .insert([{
+            name: name,
+            email: email,
+            username: username,
+            password: password,
+            gender: gender,
+            dob: dob
+        }]);
+
+    if (error) {
+        msgEl.textContent = 'Registration failed: ' + error.message;
+        msgEl.className = 'text-danger';
+        console.error(error);
+        return;
+    }
+
+    msgEl.textContent = 'Registration successful!';
+    msgEl.className = 'text-success';
+    document.getElementById('registrationForm').reset();
+}
+</script>
+</body>
+</html>

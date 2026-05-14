@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LCSS - Checkout</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.css" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div style="width: 960px; margin:20px auto;">
+
+    <!-- nav -->
+    <nav class="navbar navbar-expand-sm bg-warning navbar-dark">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link text-primary" href="index.html">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-primary" href="contact.html">Contact</a>
+            </li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle text-primary" href="profile.html" id="navbardrop" data-toggle="dropdown">
+                    <span id="nav-username"></span>
+                </a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="profile.html">Profile</a>
+                    <a class="dropdown-item" href="orders.html">Previous orders</a>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-item nav-link text-primary active" href="cart.html">
+                    <i class="fas fa-shopping-cart"></i> Cart
+                    <span id="cart_count" class="text-warning bg-light">0</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-primary" href="#" onclick="userLogout(); return false;">Logout</a>
+            </li>
+        </ul>
+    </nav>
+    <br>
+
+    <!-- Checkout Content -->
+    <h4>Checkout</h4>
+    <hr>
+
+    <div id="checkout-items">
+        <!-- Items loaded dynamically -->
+    </div>
+
+    <table class="table" id="checkout-table" style="display:none;">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Sub-total</th>
+            </tr>
+        </thead>
+        <tbody id="checkout-tbody">
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3"><strong>Total</strong></td>
+                <td><strong id="checkout-total">&euro;0</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div id="checkout-empty" style="display:none;">
+        <h5>Your cart is empty. <a href="index.html">Continue shopping</a></h5>
+    </div>
+
+    <div id="order-success" class="alert alert-success" style="display:none;">
+        <h5>Order placed successfully! Redirecting...</h5>
+    </div>
+
+    <button class="btn btn-info" id="place-order-btn" onclick="placeOrder()" style="display:none;">Place Order</button>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<script>
+    // Auth check
+    requireUserAuth();
+
+    // Display username and cart count
+    document.getElementById('nav-username').textContent = getCurrentUser();
+    document.getElementById('cart_count').textContent = getCartCount();
+
+    var checkoutProducts = [];
+
+    // Load checkout items
+    async function loadCheckout() {
+        var cart = getCart();
+
+        if (cart.length === 0) {
+            document.getElementById('checkout-empty').style.display = '';
+            return;
+        }
+
+        var { data, error } = await supabase
+            .from('producttb')
+            .select('*')
+            .in('id', cart);
+
+        if (error) {
+            showError('Failed to load checkout items: ' + error.message);
+            return;
+        }
+
+        checkoutProducts = data;
+        var tbody = document.getElementById('checkout-tbody');
+        tbody.innerHTML = '';
+        var total = 0;
+
+        data.forEach(function(product) {
+            total += parseInt(product.product_price);
+            var row = document.createElement('tr');
+            row.innerHTML = 
+                '<td>' + product.product_name + '</td>' +
+                '<td>\u20AC' + product.product_price + '</td>' +
+                '<td>1</td>' +
+                '<td>\u20AC' + product.product_price + '</td>';
+            tbody.appendChild(row);
+        });
+
+        document.getElementById('checkout-total').textContent = '\u20AC' + total;
+        document.getElementById('checkout-table').style.display = '';
+        document.getElementById('place-order-btn').style.display = '';
+    }
+
+    async function placeOrder() {
+        var username = getCurrentUser();
+        var cart = getCart();
+
+        if (cart.length === 0) {
+            alert('Cart is empty!');
+            return;
+        }
+
+        // Get user_id from users table
+        var { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('id')
+            .eq('username', username)
+            .single();
+
+        if (userError) {
+            alert('Failed to get user info: ' + userError.message);
+            return;
+        }
+
+        var userId = userData.id;
+
+        // Calculate total
+        var total = 0;
+        checkoutProducts.forEach(function(p) {
+            total += parseInt(p.product_price);
+        });
+
+        // Insert orders for each product in cart
+        var orders = cart.map(function(productId) {
+            return {
+                user_id: userId,
+                product_id: productId,
+                quantity: 1,
+                total_price: checkoutProducts.find(function(p) { return p.id === productId; }).product_price,
+                status: 'pending',
+                order_date: new Date().toISOString().split('T')[0]
+            };
+        });
+
+        var { error: orderError } = await supabase
+            .from('orders')
+            .insert(orders);
+
+        if (orderError) {
+            alert('Failed to place order: ' + orderError.message);
+            return;
+        }
+
+        // Clear cart and show success
+        saveCart([]);
+        document.getElementById('place-order-btn').style.display = 'none';
+        document.getElementById('checkout-table').style.display = 'none';
+        document.getElementById('order-success').style.display = '';
+        document.getElementById('cart_count').textContent = '0';
+
+        // Redirect after 2 seconds
+        setTimeout(function() {
+            window.location.href = 'index.html';
+        }, 2000);
+    }
+
+    loadCheckout();
+</script>
+</body>
+</html>
