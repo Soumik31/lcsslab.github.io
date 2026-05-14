@@ -81,23 +81,24 @@ async function handleLogin(e) {
         return;
     }
 
-    var { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('username', username)
-        .eq('password', password);
+    try {
+        var { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('username', username)
+            .eq('password', password);
 
-    if (error) {
-        errorMsg.textContent = 'An error occurred. Please try again.';
-        console.error(error);
-        return;
-    }
+        if (error) {
+            errorMsg.textContent = 'Error: ' + error.message;
+            console.error(error);
+            return;
+        }
 
-    if (data && data.length > 0) {
-        sessionStorage.setItem('lcss_user', username);
-        window.location.href = 'user/index.html';
-    } else {
-        errorMsg.textContent = 'Please enter correct username and password';
+        if (data && data.length > 0) {
+            sessionStorage.setItem('lcss_user', username);
+            window.location.href = 'user/index.html';
+        } else {
+            errorMsg.textContent = 'Please enter correct username and password';
     }
 }
 </script>

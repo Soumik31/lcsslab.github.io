@@ -4,8 +4,11 @@
 var SUPABASE_URL = 'https://hyjtjtjjnqpiimbotbry.supabase.co';
 var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5anRqdGpqbnFwaWltYm90YnJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NDc2NDQsImV4cCI6MjA5NDMyMzY0NH0.OY-s4BJOJnVuuUxufusq3ysRIZRtCC0eTccKMYMT58o';
 
-var _supabaseSDK = window.supabase;
-var supabase = _supabaseSDK.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Initialize client - store on window to avoid var hoisting issues
+window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// All pages use 'supabase' variable to query - point it to the client
+var supabase = window.supabaseClient;
 
 function getCurrentUser() {
     return sessionStorage.getItem('lcss_user');
@@ -54,7 +57,7 @@ function addToCart(productId) {
         saveCart(cart);
         return true;
     }
-    return false; // already in cart
+    return false;
 }
 
 function removeFromCart(productId) {
