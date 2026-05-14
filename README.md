@@ -1,70 +1,53 @@
 # LCSS E-Commerce Web Project
 
-A PHP-based e-commerce web application built as part of a Master's degree project. It supports product browsing by category (Laptops, Phones, Music), a shopping cart, user registration/login, and an admin panel for managing products and users.
+🌐 **Live Demo:** [https://soumik31.github.io/lcsslab.github.io/](https://soumik31.github.io/lcsslab.github.io/)
+
+A full-stack e-commerce web application built as part of a Master's degree project. It supports product browsing by category (Laptops, Phones, Music), a shopping cart, user registration/login, checkout with order placement, and an admin panel for managing products, users, and orders.
 
 ---
 
 ## Tech Stack
 
-- PHP (procedural + OOP)
-- MySQL / MySQLi
+- HTML5 / CSS3 / JavaScript (ES6+)
+- Supabase (PostgreSQL backend + REST API)
 - Bootstrap 4.6
 - jQuery 3.6
-- PayPal REST API SDK (sandbox)
+- Font Awesome 5.8
+
+Hosted on **GitHub Pages** with **Supabase** as the backend database.
 
 ---
 
-## Run Locally with XAMPP or WAMP
+## Live Demo
 
-### Step 1 — Download the project
+Visit the live site: **[https://soumik31.github.io/lcsslab.github.io/](https://soumik31.github.io/lcsslab.github.io/)**
 
-Click the green **Code** button on this page → **Download ZIP**, then extract it.
+### Login Credentials
 
-Or clone it:
-```bash
-git clone https://github.com/Soumik31/lcss-project.git
-```
-
-### Step 2 — Move to your web server folder
-
-- XAMPP (Windows): `C:/xampp/htdocs/lcss-project/`
-- WAMP (Windows): `C:/wamp64/www/lcss-project/`
-- MAMP (Mac): `/Applications/MAMP/htdocs/lcss-project/`
-
-### Step 3 — Import the database
-
-1. Start Apache and MySQL from your XAMPP/WAMP control panel
-2. Open your browser and go to `http://localhost/phpmyadmin`
-3. Click **Import** → choose the file `database.sql` from this project → click **Go**
-
-### Step 4 — Open the site
-
-```
-http://localhost/lcss-project/
-```
-
-Admin panel:
-```
-http://localhost/lcss-project/admin/adminlogin.php
-```
-
----
-
-## Login Credentials
-
-### Admin
-
+#### Admin Panel
 | Username | Password  |
 |----------|-----------|
 | admin    | admin123  |
 
-### Sample Users
+Access admin panel at: [/admin/adminlogin.html](https://soumik31.github.io/lcsslab.github.io/admin/adminlogin.html)
 
+#### Sample Users
 | Username | Password  |
 |----------|-----------|
 | alice    | alice123  |
 | bob      | bob123    |
 | carol    | carol123  |
+
+---
+
+## Features
+
+- **Public Storefront** — Browse all products, filter by category (Laptops, Phones, Music), search by name
+- **User Registration & Login** — Create account, login with credentials
+- **Shopping Cart** — Add/remove products, view price summary
+- **Checkout & Orders** — Place orders, view order history
+- **Admin Panel** — Dashboard with stats, manage products (add/view), view users, view orders
+- **Responsive Design** — Bootstrap 4.6 responsive layout
 
 ---
 
@@ -82,35 +65,43 @@ http://localhost/lcss-project/admin/adminlogin.php
 
 ```
 /
-├── index.php               # Homepage
-├── login.php               # User login
-├── registration.php        # User registration
-├── connection.php          # DB connection
-├── database.sql            # Database setup + sample data
+├── index.html              # Public homepage
+├── login.html              # User login
+├── registration.html       # User registration
+├── laptop.html             # Laptop category
+├── phone.html              # Phone category
+├── music.html              # Music category
+├── contact.html            # Contact page
+├── aboutus.html            # About us
 ├── style.css               # Global styles
+├── js/
+│   └── supabase-config.js  # Supabase client + auth + cart utilities
 │
 ├── admin/                  # Admin panel
-│   ├── adminlogin.php      # Admin login
-│   ├── index.php           # Dashboard
-│   ├── products.php        # View products
-│   ├── add_product.php     # Add product
-│   ├── orders.php          # View orders
-│   └── users.php           # View users
+│   ├── adminlogin.html     # Admin login
+│   ├── index.html          # Dashboard
+│   ├── products.html       # View products
+│   ├── add_product.html    # Add product
+│   ├── orders.html         # View orders
+│   └── users.html          # View users
 │
 ├── user/                   # Logged-in user area
-│   ├── index.php           # User homepage
-│   ├── cart.php            # Shopping cart
-│   ├── checkout.php        # Checkout
-│   └── payment.php         # Payment
+│   ├── index.html          # User homepage
+│   ├── cart.html           # Shopping cart
+│   ├── checkout.html       # Checkout & place order
+│   ├── profile.html        # User profile
+│   ├── laptop.html         # Laptop category (user)
+│   ├── phone.html          # Phone category (user)
+│   └── music.html          # Music category (user)
 │
-├── php/                    # DB helper classes
-└── img/                    # Images
+└── img/                    # Product images
 ```
 
 ---
 
 ## Notes
 
-- Passwords are stored in plaintext — this is an academic project, not for production
-- PayPal is configured in sandbox mode (`user/config.php`)
-- Built as a learning exercise for a Master's degree course (LCSS)
+- Passwords are stored in plaintext — this is an academic/portfolio project, not for production
+- Backend powered by Supabase (PostgreSQL + REST API)
+- No server-side code required — runs entirely as static files on GitHub Pages
+- Built as a learning exercise for a Master's degree course (LCSS) at TH Köln
