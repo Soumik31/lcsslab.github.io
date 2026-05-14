@@ -1,0 +1,5 @@
+# Tell GitHub linguist to ignore PHP files in language stats
+*.php linguist-vendored
+user/paypal/** linguist-vendored
+user/psr/** linguist-vendored
+user/composer/** linguist-vendored
